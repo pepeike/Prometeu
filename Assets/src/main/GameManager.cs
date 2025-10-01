@@ -10,15 +10,20 @@ public enum TurnState {
     LOST
 }
 
+public enum PlayerCharacter {
+    HYPERION,
+    TENET
+}
+
 public class Player {
     public int playerIndex;
-    
+    public PlayerCharacter character;
 }
 
 public class GameManager : MonoBehaviour
 {
 
-    public static GameManager inst;
+    public static GameManager Instance { get; private set; }
     public TurnState turn;
 
     public TextMeshProUGUI turnText;
@@ -66,12 +71,12 @@ public class GameManager : MonoBehaviour
     }
 
     private void Awake() {
-        if (inst == null) {
-            inst = this;
-        } else if (inst != this) {
+        if (Instance == null) {
+            Instance = this;
+        } else if (Instance != this) {
             Destroy(gameObject);
         }
-        DontDestroyOnLoad(gameObject);
+        
 
         turn = TurnState.START;
         turnText.text = "START";
