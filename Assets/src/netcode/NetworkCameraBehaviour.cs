@@ -8,7 +8,7 @@ public class NetworkCameraBehaviour : NetworkBehaviour
 
     public override void OnNetworkSpawn() {
 
-        base.OnNetworkSpawn();
+        //base.OnNetworkSpawn();
 
         if (IsOwner) {
             cam.enabled = true;

@@ -7,7 +7,7 @@ public class PlayerSpawner : NetworkBehaviour
     [SerializeField] private GameObject player1Prefab;
     [SerializeField] private GameObject player2Prefab;
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server)]
     public void SpawnPlayerServerRpc(ulong clientId, int prefabId) {
         if (prefabId == 0) {
             var player = Instantiate(player1Prefab);
@@ -18,6 +18,19 @@ public class PlayerSpawner : NetworkBehaviour
         } else {
             Debug.LogError($"Invalid prefabId {prefabId} in SpawnPlayerRpc");
         }
+    }
+
+    public override void OnNetworkSpawn() {
+        if (IsServer) {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        }
+    }
+
+    private void OnClientConnected(ulong clientID) {
+        Debug.Log($"Client connected: {clientID}");
+        // For testing, alternate between player 1 and player 2 prefabs
+        int prefabId = (clientID % 2 == 1) ? 0 : 1;
+        SpawnPlayerServerRpc(clientID, prefabId);
     }
 
 }
