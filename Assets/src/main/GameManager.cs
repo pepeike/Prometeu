@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 public enum TurnState {
@@ -20,7 +21,7 @@ public class Player {
     public PlayerCharacter character;
 }
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
 
     public static GameManager Instance { get; private set; }
@@ -32,6 +33,8 @@ public class GameManager : MonoBehaviour
     public bool player2Ready = false;
 
     public void PlayerHitEndTurn(int index) {
+        if (!IsServer) return;
+
         switch (index) {
             case 1:
                 player1Ready = true;
@@ -51,12 +54,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void StartPlayerTurn() {
+        turn = TurnState.PLAYERS_TURN;
+        Debug.Log("Player's Turn");
+        UpdateTurnUIClientRpc("PLAYER'S TURN");
+    }
+
 
     private void EndPlayerTurn() {
+        
+
         if (turn == TurnState.PLAYERS_TURN) {
             turn = TurnState.ENEMY_TURN;
             Debug.Log("Enemy's Turn");
-            turnText.text = "ENEMY'S TURN";
+            UpdateTurnUIClientRpc("ENEMY'S TURN");
             // Enemy logic here
             // After enemy turn ends, switch back to player's turn
             StartCoroutine(EndEnemyTurn());
@@ -67,7 +78,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(2f);
         turn = TurnState.PLAYERS_TURN;
         Debug.Log("Player's Turn");
-        turnText.text = "PLAYER'S TURN";
+        UpdateTurnUIClientRpc("PLAYER'S TURN");
     }
 
     private void Awake() {
@@ -76,18 +87,21 @@ public class GameManager : MonoBehaviour
         } else if (Instance != this) {
             Destroy(gameObject);
         }
-        
-
-        turn = TurnState.START;
-        turnText.text = "START";
     }
 
-    private void FixedUpdate() {
-        if (turn == TurnState.START) {
-            turn = TurnState.PLAYERS_TURN;
-            Debug.Log("Player's Turn");
-            turnText.text = "PLAYER'S TURN";
+    private void Start() {
+        if (IsServer) {
+            turn = TurnState.START;
+            StartPlayerTurn();
         }
     }
+
+    [ClientRpc]
+    private void UpdateTurnUIClientRpc(string turnText) {
+        if (TurnUI.Instance != null) {
+            TurnUI.Instance.SetTurnText(turnText);
+        }
+    }
+    
 
 }
