@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class toggleScrnBtn : MonoBehaviour, IPointerDownHandler {
+public class toggleScrnBtn : NetworkBehaviour, IPointerDownHandler {
 
     [SerializeField] GameObject targetScrn;
 
@@ -12,6 +12,7 @@ public class toggleScrnBtn : MonoBehaviour, IPointerDownHandler {
             Debug.LogError("toggleScrnBtn: targetScrn is not assigned.");
             return;
         }
+        if (!IsOwner) { return; }
 
         if (targetScrn != targetScrn.activeSelf) {
             targetScrn.SetActive(true);
