@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 57981a17dd380714294f9cb5b069dd69
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - SnakeBodyPrefab: {fileID: 4151657938623662790, guid: fb810308887a9524c83ebb013a3be72a, type: 3}
+  - FoodPrefab: {fileID: 4151657938623662790, guid: 1e701d3a37ee98345b2d759f9db84569, type: 3}
+  - PlayerMaterial: {fileID: 2100000, guid: 93098e5534aeea048833c92e07f3ca64, type: 2}
+  - CPUMaterial: {fileID: 2100000, guid: 457ac712b72258d42bf2a6a8de77dd2a, type: 2}
+  - FoodMaterial: {fileID: 2100000, guid: bc8723261fea05144ab4baf84d60662a, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

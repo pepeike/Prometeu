@@ -180,7 +180,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 5.7013016
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -211,7 +211,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1486039570
+--- !u!1 &1512770870
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -219,45 +219,52 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1486039572}
-  - component: {fileID: 1486039571}
+  - component: {fileID: 1512770872}
+  - component: {fileID: 1512770873}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: SnakeController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1486039571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1486039570}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30f04d8bd0966a9438aa444b66f1758d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1486039572
+--- !u!4 &1512770872
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1486039570}
+  m_GameObject: {fileID: 1512770870}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.07, y: -0.07, z: -0.049183648}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1512770873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1512770870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57981a17dd380714294f9cb5b069dd69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GridSize: 20
+  GameSpeed: 0.2
+  SnakeBodyPrefab: {fileID: 4151657938623662790, guid: fb810308887a9524c83ebb013a3be72a, type: 3}
+  FoodPrefab: {fileID: 4151657938623662790, guid: 1e701d3a37ee98345b2d759f9db84569, type: 3}
+  PlayerMaterial: {fileID: 2100000, guid: 93098e5534aeea048833c92e07f3ca64, type: 2}
+  CPUMaterial: {fileID: 2100000, guid: 457ac712b72258d42bf2a6a8de77dd2a, type: 2}
+  FoodMaterial: {fileID: 2100000, guid: bc8723261fea05144ab4baf84d60662a, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 127213355}
-  - {fileID: 1486039572}
+  - {fileID: 1512770872}
