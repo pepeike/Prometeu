@@ -3,10 +3,14 @@ using UnityEngine;
 
 public class PlayerFaxUI : MonoBehaviour
 {
-
+    public static PlayerFaxUI Instance;
     [SerializeField] private TMP_InputField inputField;
     [SerializeField] private TMP_Text chatLog;
     private PlayerFaxHandler playerFaxHandler;
+
+    private void Awake() {
+        Instance = this;
+    }
 
     public void Initialize(PlayerFaxHandler handler)
     {

@@ -29,9 +29,10 @@ public class PlayerFaxHandler : NetworkBehaviour
     [ClientRpc]
     private void BroadcastFaxMessageClientRpc(string msg)
     {
-        if (playerFaxUI != null && IsOwner)
+        var faxUI = PlayerFaxUI.Instance;
+        if (faxUI != null)
         {
-            playerFaxUI.AddTextMessage(msg);
+            faxUI.AddTextMessage(msg);
             Debug.Log("Received: " + msg);
         }
     }
