@@ -10,30 +10,52 @@ public class PlayerSpawner : NetworkBehaviour
     [SerializeField] private Transform spawnPoint1;
     [SerializeField] private Transform spawnPoint2;
 
-    [Rpc(SendTo.Server)]
-    public void SpawnPlayerServerRpc(ulong clientId, int prefabId) {
-        if (prefabId == 0) {
-            var player = Instantiate(player1Prefab, spawnPoint1.position, Quaternion.identity);
-            player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
-        } else if (prefabId == 1) {
-            var player = Instantiate(player2Prefab, spawnPoint2.position, Quaternion.identity);
-            player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
-        } else {
-            Debug.LogError($"Invalid prefabId {prefabId} in SpawnPlayerRpc");
-        }
-    }
+    
 
     public override void OnNetworkSpawn() {
-        if (IsServer) {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        if (!IsServer) {
+            return;
         }
+
+        if (CharacterSelectManager.FinalCharacterChoices == null) {
+            Debug.LogError("Character selection data is missing! Cannot spawn players.");
+            return;
+        }
+
+        Debug.Log($"Spawning {CharacterSelectManager.FinalCharacterChoices.Count} players...");
+
+        foreach (var entry in CharacterSelectManager.FinalCharacterChoices) {
+            ulong clientId = entry.Key;
+            int characterId = entry.Value;
+
+            Transform spawnPosition = null;
+            GameObject prefabToSpawn = null;
+            if (characterId == 1) {
+                prefabToSpawn = player1Prefab;
+                spawnPosition = spawnPoint1;
+            } else if (characterId == 2) {
+                prefabToSpawn = player2Prefab;
+                spawnPosition = spawnPoint2;
+            }
+
+            if (prefabToSpawn == null) {
+                Debug.LogWarning($"No prefab found for character ID {characterId} for client {clientId}.");
+                continue;
+            }
+
+            GameObject playerInstance = Instantiate(prefabToSpawn, spawnPosition.position, Quaternion.identity);
+
+            NetworkObject netObj = playerInstance.GetComponent<NetworkObject>();
+            if (netObj != null) {
+                netObj.SpawnWithOwnership(clientId);
+            } else {
+                Debug.LogError($"Prefab {prefabToSpawn.name} is missing a NetworkObject component.");
+                Destroy(playerInstance);
+            }
+        }
+
     }
 
-    private void OnClientConnected(ulong clientID) {
-        Debug.Log($"Client connected: {clientID}");
-        // For testing, alternate between player 1 and player 2 prefabs
-        //int prefabId = (clientID % 2 == 1) ? 0 : 1;
-        SpawnPlayerServerRpc(clientID, (int)clientID);
-    }
+    
 
 }
