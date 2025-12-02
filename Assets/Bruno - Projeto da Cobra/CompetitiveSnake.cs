@@ -2,104 +2,105 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public struct GridPosition //* voltar aqui depois
+// Estrutura para representar a posição de um segmento da cobra no grid e na memória
+public struct GridPosition
 {
-    // Estrutura para representar a posição de um segmento da cobra no grid e na memória
     public Vector2Int Position;
     public GameObject Segment;
 }
 
-public class CompetitiveSnake : MonoBehaviour//GAME MANAGER
+public class CompetitiveSnake : MonoBehaviour // GAME MANAGER
 {
-    //Declaração de Variável sempre no topo da classe
+    // --- 1. CONFIGURAÇÃO DE DIMENSÕES RETANGULARES (20x14) ---
     [Header("Configurações do Jogo")]
-    public int GridSize = 20; // O grid será GridSize x GridSize
-    public static float GameSpeed = 0.33f; // Tempo entre cada movimento da cobra (em segundos)
+    public int GridWidth = 20;  // Largura (Eixo X) = 20 células
+    public int GridHeight = 14; // Altura (Eixo Y) = 14 células
+    public static float GameSpeed = 0.33f;
     public float newGameSpeed = 0.33f;
     public Vector2Int _foodPosition;
 
     public int posicaoInicialX = 5;
     public int posicaoInicialY = 5;
 
-    //declaração de variável:
-    //palavra-chave de acesso -> tipo de dado/variável -> NomeDoDado ;
-
     [Header("Assets para Visualização")]
     public GameObject FoodPrefab;
     public GameObject gridTilePrefab;
     public GameObject snakePrefab;
-    //lembrar de verificar a cor da Food
+
     [Header("Tile Prefab Container")]
     public Transform gridTileContainer;
 
-    // Lista que armazena as duas cobras
     private List<Snake> currentSnakes = new List<Snake>();
 
-    //awake e enable preenchem referência e carregam
-    void Start()//start inicializa e preenche valores
+    void Start()
     {
-        SetSceneryTiles();
+        // Certifique-se de que SetSceneryTiles() esteja comentado/removido se estiver usando um sprite de fundo
         InitializeGame();
         GameSpeed = newGameSpeed;
     }
+
     public void StartGameButton()
     {
-        SetSceneryTiles();
+        // Certifique-se de que SetSceneryTiles() esteja comentado/removido se estiver usando um sprite de fundo
         InitializeGame();
         GameSpeed = newGameSpeed;
     }
+
     public void InitializeGame()
     {
         currentSnakes.Clear();
 
-        //int playerAmount = 4;
-        //for (int i = 0; i < playerAmount; i++)
-        //{
-        //    Snake playerSnake = Instantiate(snakePrefab, Vector3.up, Quaternion.identity).GetComponent<Snake>();
-        //    currentSnakes.Add(playerSnake);
-        //    playerSnake.AddBodySegment(new Vector2Int(posicaoInicialX, posicaoInicialY));
-        //    //mesma linha de raciocinio e só assinala isPlayerControlled = false para as cobras do Bot
-        //}
-
         Snake playerSnake = Instantiate(snakePrefab, Vector3.up, Quaternion.identity).GetComponent<Snake>();
         currentSnakes.Add(playerSnake);
+        // Garante que a cobra nasça dentro do limite jogável (x=5, y=5)
         playerSnake.AddBodySegment(new Vector2Int(posicaoInicialX, posicaoInicialY));
 
         Snake cpuSnake = Instantiate(snakePrefab, Vector3.down, Quaternion.identity).GetComponent<Snake>();
         cpuSnake.IsPlayerControlled = false;
-        //para entregar essa cpuSnake para OUTRO jogador, isPlayerControlled é true e ela recebe
-        //o input Local pelo snakeMovement do cliente do outro player
         currentSnakes.Add(cpuSnake);
-        cpuSnake.AddBodySegment(new Vector2Int(GridSize - 6, GridSize - 6));
+
+        // Posição inicial da CPU ajustada para o limite do grid (GridWidth/Height - 6 para evitar a borda)
+        cpuSnake.AddBodySegment(new Vector2Int(GridWidth - 6, GridHeight - 6));
 
         PlaceFood();
     }
+
+    // Método mantido apenas para referência (deve ser ignorado na Opção A)
     void SetSceneryTiles()
     {
-        for (int i = 0; i < GridSize; i++)//i passa a representar linha
+        for (int i = 0; i < GridWidth; i++)
         {
-            for (int j = 0; j < GridSize; j++)//ja representa coluna
+            for (int j = 0; j < GridHeight; j++)
             {
                 GameObject gridTile = Instantiate(gridTilePrefab, GetWorldPosition(new Vector2Int(i, j)), Quaternion.identity);
                 gridTile.transform.SetParent(gridTileContainer, true);
             }
         }
     }
+
     public Vector3 GetWorldPosition(Vector2Int position)
     {
-        return new Vector3(position.x - GridSize / 2f + 0.5f, position.y - GridSize / 2f + 0.5f, 0);
+        // Centraliza a posição da cobra no mundo com base nas dimensões 20x14
+        return new Vector3(position.x - GridWidth / 2f + 0.5f, position.y - GridHeight / 2f + 0.5f, 0);
     }
+
     public void PlaceFood()
     {
-        //variáveis dentro do método são chamadas de variáveis com Escopo local
         Vector2Int newPos;
         bool isOccupied = false;
         do
         {
-            newPos = new Vector2Int(Random.Range(0, GridSize), Random.Range(0, GridSize));
+            // Gera posição aleatória DENTRO das dimensões do grid
+            newPos = new Vector2Int(Random.Range(0, GridWidth), Random.Range(0, GridHeight));
             isOccupied = false;
 
-            // Checa se a nova posição está ocupada por alguma cobra
+            // Impede que a comida apareça na moldura preta
+            if (IsObstacleTile(newPos))
+            {
+                isOccupied = true;
+                continue;
+            }
+
             foreach (var snake in currentSnakes)
             {
                 if (snake.Body.Any(segment => segment.Position == newPos))
@@ -119,26 +120,50 @@ public class CompetitiveSnake : MonoBehaviour//GAME MANAGER
         }
         GameObject foodObject = Instantiate(FoodPrefab, GetWorldPosition(_foodPosition), Quaternion.identity);
     }
+
+    // --- LÓGICA PARA OBSTÁCULOS INTERNOS (Moldura Preta de 1 unidade) ---
+    private bool IsObstacleTile(Vector2Int position)
+    {
+        // borderSize = 1 garante que a linha/coluna 0 e a linha/coluna (MAX - 1) sejam obstáculos.
+        int borderSize = 1;
+
+        // Coluna da Esquerda (X = 0)
+        if (position.x < borderSize) return true;
+        // Coluna da Direita (X = 19)
+        if (position.x >= GridWidth - borderSize) return true;
+
+        // Linha de Baixo (Y = 0)
+        if (position.y < borderSize) return true;
+        // Linha de Cima (Y = 13)
+        if (position.y >= GridHeight - borderSize) return true;
+
+        return false;
+    }
+
+    // --- 2. COLISÃO AJUSTADA PARA RETANGULAR E OBSTÁCULOS ---
     public bool CheckCollision(Vector2Int headPos)
     {
-        //caso a cabeça da cobra atinja a borda da grid e o próximo movimento
-        //seja obrigatoriamente sair da grid
-        if (headPos.x < 0 || headPos.x >= GridSize || headPos.y < 0 || headPos.y >= GridSize)
+        // 1. Colisão com as BORDAS EXTERNAS (Evita Index Out of Bounds)
+        if (headPos.x < 0 || headPos.x >= GridWidth || headPos.y < 0 || headPos.y >= GridHeight)
         {
             return true;
         }
-        //percorre a lista de cobras
-        foreach (var snake in currentSnakes)//cobra1
+
+        // 2. Colisão com a MOLDURA PRETA (Obstáculos Internos)
+        // Se a posição da cabeça cair na coordenada X=0, X=19, Y=0, ou Y=13, ela morre.
+        if (IsObstacleTile(headPos))
         {
-            //verifica primeiro se a cobra é maior que só a cabeça
-            //e verifica se ela não tentou instanciar um corpo na mesma posição da cabeça
+            return true;
+        }
+
+        // Colisão com o corpo próprio ou com o corpo da outra cobra
+        foreach (var snake in currentSnakes)
+        {
             if (snake.Body.Count > 1 && snake.Body.Any(s => s.Position == headPos))
             {
                 return true;
             }
-            //verifica as outras cobras e pergunta se o corpo de alguma delas colidiu com quem
-            //verificou (a cobra anterior)
-            foreach (var otherSnake in currentSnakes.Where(s => s != snake))//as outras cobras em relação à cobra1
+            foreach (var otherSnake in currentSnakes.Where(s => s != snake))
             {
                 if (otherSnake.Body.Any(s => s.Position == headPos))
                 {
